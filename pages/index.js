@@ -16,7 +16,12 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const messages = newHistory.map(m => ({ role: m.role, content: m.text }));
+      // نجهز الرسائل بشكل صح للـ API
+      const messages = newHistory.map(m => ({
+        role: m.role,
+        content: m.text,
+      }));
+
       const resp = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -24,17 +29,7 @@ export default function Home() {
       });
 
       const data = await resp.json();
-      let assistantText = '';
-
-      if (data.output && Array.isArray(data.output) && data.output[0]?.content) {
-        assistantText = data.output[0].content[0]?.text || JSON.stringify(data.output[0].content);
-      } else if (data.output_text) {
-        assistantText = data.output_text;
-      } else if (data.completion) {
-        assistantText = data.completion;
-      } else {
-        assistantText = JSON.stringify(data);
-      }
+      let assistantText = data.reply || "خطأ في الاتصال.";
 
       setHistory(prev => [...prev, { role: 'assistant', text: assistantText }]);
     } catch (err) {
