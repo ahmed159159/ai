@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function Home() {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -9,31 +9,42 @@ export default function Home() {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMsg = { role: 'user', text: input };
+    const userMsg = { role: "user", text: input };
     const newHistory = [...history, userMsg];
     setHistory(newHistory);
-    setInput('');
+    setInput("");
     setLoading(true);
 
     try {
-      // نجهز الرسائل بشكل صح للـ API
       const messages = newHistory.map(m => ({
         role: m.role,
-        content: m.text,
+        content: m.text
       }));
 
-      const resp = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages }),
+      const resp = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages })
       });
 
       const data = await resp.json();
-      let assistantText = data.reply || "خطأ في الاتصال.";
+      let assistantText = "";
 
-      setHistory(prev => [...prev, { role: 'assistant', text: assistantText }]);
+      if (data.reply) {
+        assistantText = data.reply;
+      } else {
+        assistantText = JSON.stringify(data);
+      }
+
+      setHistory(prev => [
+        ...prev,
+        { role: "assistant", text: assistantText }
+      ]);
     } catch (err) {
-      setHistory(prev => [...prev, { role: 'assistant', text: 'خطأ في الاتصال.' }]);
+      setHistory(prev => [
+        ...prev,
+        { role: "assistant", text: "Error connecting to AI." }
+      ]);
       console.error(err);
     } finally {
       setLoading(false);
@@ -41,29 +52,29 @@ export default function Home() {
   }
 
   return (
-    <div style={{ maxWidth: 800, margin: '30px auto', fontFamily: 'Arial, sans-serif' }}>
-      <h1>Dobby Chat</h1>
-      <div style={{ border: '1px solid #ddd', padding: 12, minHeight: 300 }}>
+    <div style={{ maxWidth: 800, margin: "30px auto", fontFamily: "Arial, sans-serif" }}>
+      <h1>Dobby Crypto News Chat</h1>
+      <div style={{ border: "1px solid #ddd", padding: 12, minHeight: 300 }}>
         {history.map((m, i) => (
-          <div key={i} style={{ margin: '8px 0' }}>
-            <b style={{ color: m.role === 'user' ? '#0b5fff' : '#111' }}>
-              {m.role === 'user' ? 'You' : 'Dobby'}:
-            </b>{' '}
+          <div key={i} style={{ margin: "8px 0" }}>
+            <b style={{ color: m.role === "user" ? "#0b5fff" : "#111" }}>
+              {m.role === "user" ? "You" : "Dobby"}:
+            </b>{" "}
             <span>{m.text}</span>
           </div>
         ))}
-        {loading && <div style={{ color: '#888' }}>Dobby is typing...</div>}
+        {loading && <div style={{ color: "#888" }}>Dobby is typing...</div>}
       </div>
 
-      <form onSubmit={handleSend} style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+      <form onSubmit={handleSend} style={{ marginTop: 12, display: "flex", gap: 8 }}>
         <input
           value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="اكتب سؤالك..."
-          style={{ flex: 1, padding: '8px 10px', fontSize: 16 }}
+          onChange={e => setInput(e.target.value)}
+          placeholder="Ask about the latest crypto news..."
+          style={{ flex: 1, padding: "8px 10px", fontSize: 16 }}
         />
-        <button type="submit" disabled={loading} style={{ padding: '8px 12px' }}>
-          إرسال
+        <button type="submit" disabled={loading} style={{ padding: "8px 12px" }}>
+          Send
         </button>
       </form>
     </div>
