@@ -1,6 +1,5 @@
-// pages/api/chat.js
-
 export default async function handler(req, res) {
+  // نسمح فقط بـ POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -16,26 +15,32 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch('https://api.fireworks.ai/v1/responses', {
+    // Fireworks Chat Completion endpoint
+    const response = await fetch('https://api.fireworks.ai/inference/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${FW_KEY}`,
       },
       body: JSON.stringify({
-        model: "accounts/fireworks/models/llama-v3p1-8b-instruct",
-        input: { messages },
+        model: "sentientfoundation/dobby-unhinged-llama-3-3-70b-new",
+        messages,
         max_tokens: max_tokens || 512,
       }),
     });
 
     if (!response.ok) {
       const text = await response.text();
-      return res.status(response.status).send(text);
+      return res.status(response.status).send({ error: text });
     }
 
     const data = await response.json();
-    return res.status(200).json(data);
+
+    // الرد بيرجع من Fireworks في choices[0].message.content
+    return res.status(200).json({
+      reply: data.choices?.[0]?.message?.content || "",
+      raw: data,
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'internal_error', message: err.message });
