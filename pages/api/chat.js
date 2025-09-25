@@ -1,11 +1,19 @@
+// pages/api/chat.js
+
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
   const { messages, max_tokens } = req.body || {};
-  if (!messages) return res.status(400).json({ error: 'messages required' });
+  if (!messages) {
+    return res.status(400).json({ error: 'messages required' });
+  }
 
   const FW_KEY = process.env.FIREWORKS_API_KEY;
-  if (!FW_KEY) return res.status(500).json({ error: 'Missing FIREWORKS_API_KEY' });
+  if (!FW_KEY) {
+    return res.status(500).json({ error: 'Missing FIREWORKS_API_KEY' });
+  }
 
   try {
     const response = await fetch('https://api.fireworks.ai/v1/responses', {
@@ -15,7 +23,7 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${FW_KEY}`,
       },
       body: JSON.stringify({
-        model: "sentientfoundation/dobby-unhinged-llama-3-3-70b-new",
+        model: "accounts/fireworks/models/llama-v3p1-8b-instruct",
         input: { messages },
         max_tokens: max_tokens || 512,
       }),
