@@ -9,41 +9,30 @@ export default function Home() {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMsg = { role: "user", text: input };
+    const userMsg = { role: "user", content: input };
     const newHistory = [...history, userMsg];
     setHistory(newHistory);
     setInput("");
     setLoading(true);
 
     try {
-      const messages = newHistory.map(m => ({
-        role: m.role,
-        content: m.text
-      }));
-
       const resp = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages })
+        body: JSON.stringify({ messages: newHistory })
       });
 
       const data = await resp.json();
-      let assistantText = "";
+      const assistantMsg = {
+        role: "assistant",
+        content: data.reply || JSON.stringify(data)
+      };
 
-      if (data.reply) {
-        assistantText = data.reply;
-      } else {
-        assistantText = JSON.stringify(data);
-      }
-
-      setHistory(prev => [
-        ...prev,
-        { role: "assistant", text: assistantText }
-      ]);
+      setHistory(prev => [...prev, assistantMsg]);
     } catch (err) {
       setHistory(prev => [
         ...prev,
-        { role: "assistant", text: "Error connecting to AI." }
+        { role: "assistant", content: "Error connecting to AI." }
       ]);
       console.error(err);
     } finally {
@@ -60,7 +49,7 @@ export default function Home() {
             <b style={{ color: m.role === "user" ? "#0b5fff" : "#111" }}>
               {m.role === "user" ? "You" : "Dobby"}:
             </b>{" "}
-            <span>{m.text}</span>
+            <span style={{ whiteSpace: "pre-line" }}>{m.content}</span>
           </div>
         ))}
         {loading && <div style={{ color: "#888" }}>Dobby is typing...</div>}
