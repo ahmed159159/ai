@@ -1,9 +1,74 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-html, body, #root {
-  height: 100%;
+body {
   margin: 0;
-  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #fafafa;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header {
+  background: #f3f3f3;
+  padding: 20px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-bottom: 2px solid #ddd;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+}
+
+.chat-box {
+  flex: 1;
+  max-width: 40%;
+  border-right: 2px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.chat-results {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.chat-input button {
+  padding: 10px 16px;
+  background: #4a4ae6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.chat-input button:hover {
+  background: #3a3ac6;
+}
+
+.map-container {
+  flex: 2;
+  height: 100%;
 }
