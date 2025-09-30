@@ -1,29 +1,25 @@
-import React, { useEffect } from "react";
-import L from "leaflet";
+import React from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-function MapView({ center, places }) {
-  useEffect(() => {
-    const map = L.map("map").setView(center, 14);
+const MapView = ({ places }) => {
+  const defaultPosition = [30.0444, 31.2357]; // Cairo
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-    }).addTo(map);
-
-    L.marker(center).addTo(map).bindPopup("You are here");
-
-    places.forEach((place) => {
-      L.marker([place.lat, place.lon])
-        .addTo(map)
-        .bindPopup(`<b>${place.name}</b><br/>${place.address}`);
-    });
-
-    return () => {
-      map.remove();
-    };
-  }, [center, places]);
-
-  return <div id="map" className="h-full w-full"></div>;
-}
+  return (
+    <div className="map-container">
+      <MapContainer center={defaultPosition} zoom={13} style={{ height: "100%", width: "100%" }}>
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {places.map((place, idx) => (
+          <Marker key={idx} position={[place.lat, place.lon]}>
+            <Popup>{place.name}</Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+    </div>
+  );
+};
 
 export default MapView;
