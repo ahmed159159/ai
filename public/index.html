@@ -1,92 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dobby for Tourist</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 20px;
-      background: #f8f8f8;
-    }
-
-    /* العنوان */
-    .header {
-      margin-bottom: 20px;
-    }
-
-    .header h1 {
-      display: inline-block;
-      padding: 10px 30px;
-      border: 2px solid black;
-      border-radius: 50px;
-      background: white;
-    }
-
-    /* صندوق النتائج */
-    .result-box {
-      width: 80%;
-      height: 300px;
-      border: 2px solid black;
-      margin: 0 auto 20px;
-      background: #fff;
-      text-align: left;
-      padding: 10px;
-      overflow-y: auto;
-    }
-
-    /* منطقة الإدخال */
-    .input-area {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .input-area input {
-      width: 60%;
-      padding: 10px;
-      font-size: 16px;
-      border: 2px solid black;
-    }
-
-    .input-area button {
-      padding: 10px 15px;
-      font-size: 16px;
-      border: 2px solid black;
-      background: white;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>Dobby for Tourist</h1>
-  </div>
-
-  <div class="result-box" id="result">
-    <p><b>result of AI</b></p>
-  </div>
-
-  <div class="input-area">
-    <button onclick="sendQuestion()">Send</button>
-    <input type="text" id="question" placeholder="Enter your question" />
-  </div>
-
-  <script>
-    // محاكاة الذكاء الصناعي (placeholder)
-    function sendQuestion() {
-      const question = document.getElementById("question").value;
-      const resultBox = document.getElementById("result");
-      if(question.trim() !== "") {
-        resultBox.innerHTML += "<p><b>You:</b> " + question + "</p>";
-        resultBox.innerHTML += "<p><b>AI:</b> (هنا يجي الرد من Dobby API)</p>";
-        document.getElementById("question").value = "";
-        resultBox.scrollTop = resultBox.scrollHeight;
-      }
-    }
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dobby for Tourist</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
