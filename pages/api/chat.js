@@ -1,5 +1,25 @@
 import { fetchCryptoNews } from "../../utils/rss";
 
+// Helper: Fetch unlocks from DefiLlama
+async function fetchUnlocks() {
+  const resp = await fetch("https://coins.llama.fi/unlocks");
+  const data = await resp.json();
+
+  // ناخد top 5 based on token amount
+  const top = data.projects
+    .sort((a, b) => b.nextUnlock?.amount - a.nextUnlock?.amount)
+    .slice(0, 5);
+
+  return top.map(p => `${p.project}: ${p.nextUnlock.amount} tokens on ${p.nextUnlock.date}`).join("\n");
+}
+
+// Helper: Fetch airdrops (مثال API DefiLlama لو عنده)
+async function fetchAirdrops() {
+  const resp = await fetch("https://api.llama.fi/airdrops");
+  const data = await resp.json();
+  return data.slice(0, 5).map(a => `- ${a.name}: ${a.description}`).join("\n");
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -13,26 +33,35 @@ export default async function handler(req, res) {
   const userMessage = messages[messages.length - 1]?.content?.toLowerCase();
 
   try {
-    // Step 1: First interaction → ask the user
+    // أول مرة يدخل
     if (messages.length === 1) {
       return res.status(200).json({
-        reply: "👋 Do you want to know the latest crypto news?"
+        reply: "👋 Hi! You can ask me:\n- latest crypto news\n- top unlocks\n- airdrops"
       });
     }
 
-    // Step 2: If user says yes
-    if (userMessage.includes("yes")) {
+    // لو عايز أخبار
+    if (userMessage.includes("news")) {
       const news = await fetchCryptoNews(5);
       const formatted = news.map(n => `- ${n.title} (${n.link})`).join("\n");
-
-      return res.status(200).json({
-        reply: `Here are the latest crypto news:\n${formatted}`
-      });
+      return res.status(200).json({ reply: `📰 Latest news:\n${formatted}` });
     }
 
-    // Step 3: Fallback
+    // لو عايز unlocks
+    if (userMessage.includes("unlock")) {
+      const unlocks = await fetchUnlocks();
+      return res.status(200).json({ reply: `🔓 Biggest upcoming unlocks:\n${unlocks}` });
+    }
+
+    // لو عايز airdrops
+    if (userMessage.includes("airdrop")) {
+      const drops = await fetchAirdrops();
+      return res.status(200).json({ reply: `🎁 Upcoming airdrops:\n${drops}` });
+    }
+
+    // fallback
     return res.status(200).json({
-      reply: "I can provide you with the latest crypto news. Just say 'yes'."
+      reply: "I can show you news, unlocks, or airdrops. Try asking me!"
     });
 
   } catch (err) {
