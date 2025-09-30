@@ -1,23 +1,54 @@
 import { fetchCryptoNews } from "../../utils/rss";
 
-// Helper: Fetch unlocks from DefiLlama
+// Helper: Fetch top unlocks from DefiLlama
 async function fetchUnlocks() {
-  const resp = await fetch("https://coins.llama.fi/unlocks");
-  const data = await resp.json();
+  try {
+    const resp = await fetch("https://coins.llama.fi/unlocks");
+    const data = await resp.json();
 
-  // ناخد top 5 based on token amount
-  const top = data.projects
-    .sort((a, b) => b.nextUnlock?.amount - a.nextUnlock?.amount)
-    .slice(0, 5);
+    if (!data.projects) {
+      return "⚠️ No unlock data available.";
+    }
 
-  return top.map(p => `${p.project}: ${p.nextUnlock.amount} tokens on ${p.nextUnlock.date}`).join("\n");
+    const list = data.projects
+      .map(p => {
+        const firstUnlock = p.upcomingUnlocks?.[0];
+        if (!firstUnlock) return null;
+        return {
+          project: p.project,
+          symbol: p.symbol,
+          amount: firstUnlock.amount,
+          date: new Date(firstUnlock.date * 1000).toLocaleDateString()
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 5);
+
+    return list.map(
+      u => `🔓 ${u.project} (${u.symbol}) → ${u.amount.toLocaleString()} tokens unlock on ${u.date}`
+    ).join("\n");
+  } catch (err) {
+    console.error("Error fetching unlocks:", err);
+    return "⚠️ Error fetching unlock data.";
+  }
 }
 
-// Helper: Fetch airdrops (مثال API DefiLlama لو عنده)
+// Helper: Fetch upcoming airdrops from DefiLlama
 async function fetchAirdrops() {
-  const resp = await fetch("https://api.llama.fi/airdrops");
-  const data = await resp.json();
-  return data.slice(0, 5).map(a => `- ${a.name}: ${a.description}`).join("\n");
+  try {
+    const resp = await fetch("https://api.llama.fi/airdrops");
+    const data = await resp.json();
+
+    if (!data || !data.length) return "⚠️ No airdrop data available.";
+
+    return data.slice(0, 5)
+      .map(a => `🎁 ${a.name} → ${a.description || "No description"}`)
+      .join("\n");
+  } catch (err) {
+    console.error("Error fetching airdrops:", err);
+    return "⚠️ Error fetching airdrops.";
+  }
 }
 
 export default async function handler(req, res) {
